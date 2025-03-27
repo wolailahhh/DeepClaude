@@ -1,0 +1,27 @@
+name: Sync Upstream
+
+on:
+  schedule:
+    - cron: '0 12 * * *'  # 每天 UTC 时间 12:00（北京时间 20:00）运行
+  workflow_dispatch:       # 允许手动触发
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.PAT }}  # 使用 PAT 避免权限问题
+
+      - name: 添加原仓库为上游
+        run: git remote add upstream https://github.com/ErlichLiu/DeepClaude.git
+
+      - name: 拉取原仓库更新
+        run: git fetch upstream
+
+      - name: 合并到当前分支
+        run: git merge upstream/main --allow-unrelated-histories
+
+      - name: 推送更改
+        run: git push origin main
